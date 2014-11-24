@@ -1,7 +1,7 @@
 subtitle-converter
 ==================
 
-A simple ruby script to convert srt subtitle to srt and vice versa
+A simple ruby script to convert srt subtitle to srt and vice versa.
 Ruby needs to be installed on the system in order to use the script.
 
 It is very easy to use.

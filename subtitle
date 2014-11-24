@@ -40,7 +40,7 @@ def sub_converter(input)
 		stop      = stop_time.to_f / @frame		
 		out = text.gsub("{#{start_time}}{#{stop_time}}", "" ) 
 		out = out.gsub("| ", "\n")
-	 	texts = "#{@x} \n#{time_convert(start)} --> #{time_convert(stop)} \n#{out}\n"
+	 	texts = "#{@x}\n#{time_convert(start)} --> #{time_convert(stop)} \n#{out}\n"
 	 	out_file.puts texts
 	 	@x += 1
 	 

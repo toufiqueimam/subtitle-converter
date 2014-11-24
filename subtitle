@@ -40,7 +40,7 @@ def sub_converter(input)
 		stop      = stop_time.to_f / @frame		
 		out = text.gsub("{#{start_time}}{#{stop_time}}", "" ) 
 		out = out.gsub("|", "\n")
-	 	texts = "#{@x} \n#{time_convert(start)} --> #{time_convert(stop)}\n#{out}\n"
+	 	texts = "#{@x} \n#{time_convert(start)} --> #{time_convert(stop)} \n#{out}\n"
 	 	out_file.puts texts
 	 	@x += 1
 	 
@@ -51,15 +51,15 @@ end
 def srt_converter(input)
 	pattern = '<><><>'
 	out_file = File.new("#{ARGV[1][0...-3]}sub", "w")
-	input = File.read(ARGV[1]) 
-	input = input.gsub(/(\r\n){2}/, "<><><>")
-	match = input.split(pattern)
+	input_file = File.read("#{input}") 
+	input_file = input_file.gsub(/(\r\n){2}/, "<><><>")
+	match = input_file.split(pattern)
 	match.each do |xxx|
 		xxx = xxx.gsub(/\n/,"")
 		pre_hour, pre_minute, pre_second, pre_millisecond, post_hour, post_minute, post_second, post_millisecond, message = 
 		xxx.match(/[^d+](\d\d):(\d\d):(\d\d),(\d\d\d) --> (\d\d):(\d\d):(\d\d),(\d\d\d)(.*$)/i).captures
 		message = message.gsub(/(\r)/," | ")
-		message.slice!(1)	
+		message = message[3..-1]	
 
 		texts = "{#{frame_converter(pre_hour.to_i,pre_minute.to_i,pre_second.to_i,pre_millisecond.to_i)}}{#{frame_converter(post_hour.to_i,post_minute.to_i,post_second.to_i,post_millisecond.to_i)}}#{message}"
 		

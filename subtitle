@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+
+require 'mathn'
+
+
+@frame = ARGV[0].to_f
+
+
+@x = 1
+
+
+def time_convert(input)
+	milliseconds = input.to_f % 1000.0
+	seconds = input % 60
+	minutes = (input / 60) % 60
+	hours = input / (60 * 60)
+	return format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds) 
+end
+
+
+
+def frame_converter(hour,minute,second,millisecond)
+	frames = ((hour * 3600.0) + (minute * 60.0) + second + (millisecond/1000.0)) * @frame
+	return frames.to_i
+end
+
+
+def sub_converter(input)
+	out_file = File.new("#{ARGV[1][0...-3]}srt", "w")
+	IO.foreach(input) do |text|  
+		match = text.scan(/\{([0-9]*)\}/)
+
+		start_time = match[0].to_s 
+		start_time = /(\d+)/.match(start_time).to_s
+		start 	   = start_time.to_f / @frame
+
+		stop_time = match[1].to_s 
+		stop_time = /(\d+)/.match(stop_time).to_s 
+		stop      = stop_time.to_f / @frame		
+		out = text.gsub("{#{start_time}}{#{stop_time}}", "" ) 
+		out = out.gsub("|", "\n")
+	 	texts = "#{@x} \n#{time_convert(start)} --> #{time_convert(stop)}\n#{out}\n"
+	 	out_file.puts texts
+	 	@x += 1
+	 
+	end
+end
+
+
+def srt_converter(input)
+	pattern = '<><><>'
+	out_file = File.new("#{ARGV[1][0...-3]}sub", "w")
+	input = File.read(ARGV[1]) 
+	input = input.gsub(/(\r\n){2}/, "<><><>")
+	match = input.split(pattern)
+	match.each do |xxx|
+		xxx = xxx.gsub(/\n/,"")
+		pre_hour, pre_minute, pre_second, pre_millisecond, post_hour, post_minute, post_second, post_millisecond, message = 
+		xxx.match(/[^d+](\d\d):(\d\d):(\d\d),(\d\d\d) --> (\d\d):(\d\d):(\d\d),(\d\d\d)(.*$)/i).captures
+		message = message.gsub(/(\r)/," | ")
+		message.slice!(1)	
+
+		texts = "{#{frame_converter(pre_hour.to_i,pre_minute.to_i,pre_second.to_i,pre_millisecond.to_i)}}{#{frame_converter(post_hour.to_i,post_minute.to_i,post_second.to_i,post_millisecond.to_i)}}#{message}"
+		
+		out_file.puts texts
+	end
+	
+end
+
+if ARGV[1][-3..-1] == "srt"
+	srt_converter(ARGV[1])
+elsif ARGV[1][-3..-1] == "sub"
+	sub_converter(ARGV[1])
+else
+	puts "Unsupported format"
+end
+
